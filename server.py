@@ -14,7 +14,7 @@ UITDB_API_KEY = os.getenv("UITDB_API_KEY")
 UITDB_CLIENT_ID = os.getenv("UITDB_CLIENT_ID")
 
 # === MCP server ===
-mcp = FastMCP("uitdb", stateless_http=True)
+mcp = FastMCP("uitdb")
 
 def _auth_params_and_headers() -> tuple[Dict[str, Any], Dict[str, str]]:
     """
@@ -138,7 +138,7 @@ async def search_uit(
 app = FastAPI()
 
 # Mount FastMCP op /mcp (SSE/HTTP transport)
-app.mount("/mcp", mcp.fastapi_app)
+app.mount("/mcp", mcp.http_app)
 
 @app.get("/")
 def health():
