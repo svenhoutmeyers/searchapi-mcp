@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastmcp import FastMCP
 
 # === Config ===
-UITDB_BASE = "https://search.uitdatabank.be"  # basis voor Search API (events/places/organizers)
+UITDB_BASE = "https://search-test.uitdatabank.be"  # basis voor Search API (events/places/organizers)
 
 # Pak secrets uit omgeving
 UITDB_CLIENT_ID = os.getenv("UITDB_CLIENT_ID")
@@ -46,8 +46,8 @@ async def _uitdb_search(
     # Basisfilters
     if q:
         params["q"] = q
-    params["size"] = limit
-    params["page"] = page
+    # Note: UiTdatabank API doesn't support size/page parameters
+    # API returns default pagination automatically
 
     # Voorbeeld van extra filters (optioneel, afhankelijk van SAPI capabilities)
     if start:
