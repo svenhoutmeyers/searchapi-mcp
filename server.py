@@ -48,6 +48,9 @@ async def _uitdb_search(
         params["q"] = q
     # Note: UiTdatabank API doesn't support size/page parameters
     # API returns default pagination automatically
+    
+    # Add embed=true to get full event details instead of just references
+    params["embed"] = "true"
 
     # Voorbeeld van extra filters (optioneel, afhankelijk van SAPI capabilities)
     if start:
@@ -65,8 +68,8 @@ async def _uitdb_search(
 
 def _compact_event(e: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Maak resultaten compacter/leesbaar voor in Claude.
-    Let op: veldnamen kunnen per versie verschillen; dit is een veilige, defensieve extractie.
+    Maak resultaten compacter/leesbaar voor embed=true response.
+    Extraheert de belangrijkste velden uit volledige embedded event data.
     """
     def g(obj, *path, default=None):
         cur = obj
@@ -78,14 +81,14 @@ def _compact_event(e: Dict[str, Any]) -> Dict[str, Any]:
         return cur
 
     return {
-        "id": e.get("id"),
+        "id": e.get("@id"),  # Updated: use @id instead of id
         "name": g(e, "name", "nl", default=g(e, "name", "en", default=e.get("name"))),
-        "startDate": g(e, "calendar", "startDate"),
-        "endDate": g(e, "calendar", "endDate"),
-        "status": g(e, "status", "type"),
-        "url": g(e, "url"),
-        "location": g(e, "location", "address", "addressLocality"),
-        "organizer": g(e, "organizer", "name"),
+        "startDate": e.get("startDate"),  # Updated: direct access instead of calendar.startDate
+        "endDate": e.get("endDate"),      # Updated: direct access instead of calendar.endDate
+        "status": g(e, "status", "type"), 
+        "url": e.get("@id"),  # Use @id as URL since no separate url field
+        "location": g(e, "location", "name", "nl", default=g(e, "location", "name", "en", default="Geen locatie")),  # Updated: embedded location
+        "organizer": g(e, "organizer", "name", "nl", default=g(e, "organizer", "name", "en", default="Geen organizer")),  # Updated: embedded organizer
     }
 
 @mcp.tool
