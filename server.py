@@ -10,7 +10,6 @@ from fastmcp import FastMCP
 UITDB_BASE = "https://search.uitdatabank.be"  # basis voor Search API (events/places/organizers)
 
 # Pak secrets uit omgeving
-UITDB_API_KEY = os.getenv("UITDB_API_KEY")
 UITDB_CLIENT_ID = os.getenv("UITDB_CLIENT_ID")
 
 # === MCP server ===
@@ -18,16 +17,12 @@ mcp = FastMCP("uitdb")
 
 def _auth_params_and_headers() -> tuple[Dict[str, Any], Dict[str, str]]:
     """
-    Bepaal auth via API key of client id.
-    - Als API key aanwezig: stuur als X-Api-Key header én als apiKey queryparam (ruimdenkend voor varianten).
+    Bepaal auth via client id.
     - Als client id aanwezig: stuur als x-client-id header én als clientId queryparam.
     """
     params: Dict[str, Any] = {}
     headers: Dict[str, str] = {"Accept": "application/json"}
 
-    if UITDB_API_KEY:
-        headers["X-Api-Key"] = UITDB_API_KEY
-        params["apiKey"] = UITDB_API_KEY
     if UITDB_CLIENT_ID:
         headers["x-client-id"] = UITDB_CLIENT_ID
         params["clientId"] = UITDB_CLIENT_ID
